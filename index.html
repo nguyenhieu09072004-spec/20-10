@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Women's Day 💖</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #ffe6f0, #ffb6c1);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      position: relative;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    h1 {
+      position: absolute;
+      bottom: 10%;
+      color: #ff004c;
+      font-size: clamp(1.2rem, 5vw, 2rem);
+      text-align: center;
+      opacity: 0;
+      animation: showText 2s ease forwards;
+      animation-delay: 8s;
+    }
+
+    @keyframes showText {
+      to {
+        opacity: 1;
+        transform: translateY(-10px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="heartCanvas"></canvas>
+  <h1>💖 Happy Women's Day 20/10 💖</h1>
+
+  <script>
+    const canvas = document.getElementById("heartCanvas");
+    const ctx = canvas.getContext("2d");
+
+    let hearts = [];
+    let width, height, centerX, centerY;
+
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      centerX = width / 2;
+      centerY = height / 2;
+    }
+
+    window.addEventListener("resize", resize);
+    resize();
+
+    // Tạo hình trái tim lớn theo công thức toán
+    function heartShape(t) {
+      const x = 16 * Math.pow(Math.sin(t), 3);
+      const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+      return { x, y };
+    }
+
+    class HeartParticle {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.size = Math.random() * 3 + 1;
+        this.color = `hsl(${Math.random() * 360}, 80%, 60%)`;
+        this.alpha = 1;
+        this.angle = Math.random() * Math.PI * 2;
+        this.speedX = (Math.random() - 0.5) * 2;
+        this.speedY = (Math.random() - 0.5) * 2;
+      }
+
+      update(t) {
+        if (t < 4000) {
+          // Giai đoạn tim bay tự do
+          this.x += this.speedX;
+          this.y += this.speedY;
+        } else {
+          // Giai đoạn tim tụ về giữa tạo hình trái tim lớn
+          const shape = heartShape(this.angle);
+          const targetX = centerX + shape.x * 12;
+          const targetY = centerY - shape.y * 12;
+          this.x += (targetX - this.x) * 0.03;
+          this.y += (targetY - this.y) * 0.03;
+        }
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.globalAlpha = this.alpha;
+        ctx.fillStyle = this.color;
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < 250; i++) {
+      hearts.push(new HeartParticle());
+    }
+
+    let startTime = null;
+    function animate(timestamp) {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+
+      ctx.clearRect(0, 0, width, height);
+      hearts.forEach((heart) => {
+        heart.update(elapsed);
+        heart.draw();
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
